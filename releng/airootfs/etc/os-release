@@ -1,0 +1,11 @@
+NAME="WierdCore Linux"
+PRETTY_NAME="WierdCore Linux"
+ID=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;23;147;209"
+HOME_URL="https://github.com/remix2021687/WierdCore-Linux"
+DOCUMENTATION_URL="https://github.com/remix2021687/WierdCore-Linux"
+SUPPORT_URL="https://github.com/remix2021687/WierdCore-Linux"
+BUG_REPORT_URL="https://github.com/remix2021687/WierdCore-Linux/issues"
+PRIVACY_POLICY_URL="https://github.com/remix2021687/WierdCore-Linux/docs/privacy-policy/"
+LOGO=wierdlogo
