@@ -19,7 +19,7 @@ def run(cmd, description=""):
         print(f"Command Error")
         sys.exit(1)
     
-    print("✓ Успешно")
+    print("✓ Completed")
     return result.stdout.strip()
 
 def main():
@@ -33,34 +33,72 @@ def main():
 
     disk = select_disk()
 
+    run("mount -o remount,size=4G /run/archiso/cowspace")
+
+    run(f"sgdisk -Z {disk}", "Formatation disk")
+    run(f"sgdisk -n=1:0:+512M -t=1:EF00 {disk}", "Create EFI partition")
+    run(f"sgdisk -n=2:0:0 -t=2:8300 {disk}", "Create root pratition")
+
     efi_part = f"{disk}p1" if "nvme" in disk else f"{disk}1"
     root_part = f"{disk}p2" if "nvme" in disk else f"{disk}2"
+
+    run(f"umount -f {efi_part} 2>/dev/null || true", "Over umount EFI")
+    run(f"umount -f {root_part} 2>/dev/null || true", "Over umount root")
 
     print("Formating disk...")
     run(f"mkfs.fat -F32 {efi_part}")
     run(f"mkfs.btrfs -f -L root {root_part}")
 
     print("Create btrfs partition...")
-    run("mkdir /mnt")
     run(f"mount {root_part} /mnt")
     run(f"btrfs subvolume create /mnt/@")
     run(f"btrfs subvolume create /mnt/@home")
     run(f"umount /mnt")
 
+    run(f"mount -o noatime,compress=zstd,subvol=@ {root_part} /mnt")
+
+    run("mkdir -p /mnt/home /mnt/boot /mnt/etc")
+
+    run(f"mount {efi_part} /mnt/boot")
+    run(f"mount -o noatime,compress=zstd,subvol=@ {root_part} /mnt/home")
+
+    print("Mount completed")
+    
+    run("mkdir -p /mnt/etc /mnt/proc /mnt/sys /mnt/dev /mnt/run /mnt/run/lock /mnt/boot", "Create base dir")
+    
+    run("mount --types proc /proc /mnt/proc", "Mount /proc")
+    run("mount --rbind /sys /mnt/sys", "Mount/sys")
+    run("mount --make-rslave /mnt/sys", "setup /sys")
+    run("mount --rbind /dev /mnt/dev", "mount /dev")
+    run("mount --make-rslave /mnt/dev", "setup /dev")
+    run("mount --types tmpfs tmpfs /mnt/run", "Mount /run")
+    run("mkdir -p /mnt/run/lock", "Create /run/lock")
+
+    run("genfstab -U /mnt >> /mnt/etc/fstab")
+
+    run("pacstrap -K /mnt base linux-zen linux-firmware intel-ucode btrfs-progs systemd systemd-sysvcompat")
+    
     print("Install packages...")
     
     packages = [
-        "base", "linux-zen", "linux-firmware", "intel-ucode",
-        "btrfs-progs", "systemd", "systemd-sysvcompat",
+        "base", "linux-zen", "linux-firmware", "intel-ucode", "btrfs-progs",
+        "systemd", "systemd-sysvcompat",
         "hyprland", "waybar", "wofi", "dunst", "hyprlock", "hyprpaper", "hyprshot",
         "grim", "slurp", "kitty", "firefox", "yazi", "fastfetch", "starship", "btop",
         "pipewire", "pipewire-pulse", "wireplumber", "xdg-desktop-portal-hyprland"
     ]
 
-    run(f"pacstrap -K /mnt " + "".join(packages))
+
+    total = len(packages)
+    for i, pkg in enumerate(packages, 1):
+        procent = int((i / total) * 100)
+        print(f"\n\033[1;36m[{i:2d}/{total}] [{procent:3d}%] Installed: {pkg}\033[0m")
+
+        run(f"arch-chroot /mnt pacman -Sy --noconfirm {pkg}", f"Installed > {pkg}")
+
+
 
     print("Setting system... (fstab, bootloader, users)")
-    run("genfstab -U /mnt >> /mnt/etc/fstab")
 
     chroot_script = f"""
     #!/bin/bash
@@ -69,18 +107,27 @@ def main():
 
     ln -sf /usr/share/zoneinfo/Europe/Prague /etc/localtime
 
-    hwlock --systohc
+    hwclock --systohc
 
     echo "ru_RU.UTF-8 UTF-8" >> /etc/locale.gen
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-    local-gen
+    locale-gen
 
     echo "LANG=ru_RU.UTF-8" > /etc/locale.conf
     echo "weirdcore" > /etc/hostname
 
+    groupadd -f wheel
+    groupadd -f audio
+    groupadd -f video
+    groupadd -f storage
+    groupadd -f weird
+
+    mkdir -p /etc/sudoers.d/
+
     useradd -m -G wheel,audio,video,storage weird
     echo "weird:weird" | chpasswd
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/weird
+    chmod 440 /etc/sudoers.d/weird
 
     bootctl --path=/boot install
 
