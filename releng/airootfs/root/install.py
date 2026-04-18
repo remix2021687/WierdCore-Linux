@@ -2,32 +2,12 @@ import getpass
 import subprocess
 import sys
 
+from scripts.run.run import run
 from scripts.selectdisk.select_disk import select_disk
+from scripts.installpackages.installpackages import installpackages
+from scripts.mountdisk.mountdisk import mountdisk
 
-def run(cmd, description="", live=True):    
-    if description:
-        print(f"\n[📌 {description} ]")
-    print(f"→ {cmd}")
 
-    if live:
-        result = subprocess.run(cmd, shell=True, text=True)
-    else:
-        result = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-        if result.stdout:
-            print(result.stdout.strip())
-        if result.stderr:
-            print(f"⚠️  {result.stderr.strip()}")
-    
-        if result.returncode != 0:
-            print(f"Command Error")
-            sys.exit(1)
-
-    
-    
-    
-    
-    print("✓ Completed")
-    return result.stdout.strip() if not live else ""
 
 def main():
     subprocess.run(['clear'], shell=True)
@@ -40,70 +20,13 @@ def main():
 
     disk = select_disk()
 
-    run("mount -o remount,size=4G /run/archiso/cowspace")
-
-    run(f"sgdisk -Z {disk}", "Formatation disk")
-    run(f"sgdisk -n=1:0:+512M -t=1:EF00 {disk}", "Create EFI partition")
-    run(f"sgdisk -n=2:0:0 -t=2:8300 {disk}", "Create root pratition")
-
-    efi_part = f"{disk}p1" if "nvme" in disk else f"{disk}1"
-    root_part = f"{disk}p2" if "nvme" in disk else f"{disk}2"
-
-    run(f"umount -f {efi_part} 2>/dev/null || true", "Over umount EFI")
-    run(f"umount -f {root_part} 2>/dev/null || true", "Over umount root")
-
-    print("Formating disk...")
-    run(f"mkfs.fat -F32 {efi_part}")
-    run(f"mkfs.btrfs -f -L root {root_part}")
-
-    print("Create btrfs partition...")
-    run(f"mount {root_part} /mnt")
-    run(f"btrfs subvolume create /mnt/@")
-    run(f"btrfs subvolume create /mnt/@home")
-    run(f"umount /mnt")
-
-    run(f"mount -o noatime,compress=zstd,subvol=@ {root_part} /mnt")
-
-    run("mkdir -p /mnt/home /mnt/boot /mnt/etc")
-
-    run(f"mount {efi_part} /mnt/boot")
-    run(f"mount -o noatime,compress=zstd,subvol=@ {root_part} /mnt/home")
-
-    print("Mount completed")
-    
-    run("mkdir -p /mnt/etc /mnt/proc /mnt/sys /mnt/dev /mnt/run /mnt/run/lock /mnt/boot", "Create base dir")
-    
-    run("mount --types proc /proc /mnt/proc", "Mount /proc")
-    run("mount --rbind /sys /mnt/sys", "Mount/sys")
-    run("mount --make-rslave /mnt/sys", "setup /sys")
-    run("mount --rbind /dev /mnt/dev", "mount /dev")
-    run("mount --make-rslave /mnt/dev", "setup /dev")
-    run("mount --types tmpfs tmpfs /mnt/run", "Mount /run")
-    run("mkdir -p /mnt/run/lock", "Create /run/lock")
+    mountdisk(disk)
 
     run("genfstab -U /mnt >> /mnt/etc/fstab")
 
     run("pacstrap -K /mnt base linux-zen linux-firmware intel-ucode btrfs-progs systemd systemd-sysvcompat sudo")
     
-    print("Install packages...")
-    
-    packages = [
-        "base", "linux-zen", "linux-firmware", "intel-ucode", "btrfs-progs",
-        "systemd", "systemd-sysvcompat", "grub", "efibootmgr", "sudo",
-        "hyprland", "waybar", "wofi", "dunst", "hyprlock", "hyprpaper", "hyprshot",
-        "grim", "slurp", "kitty", "firefox", "yazi", "fastfetch", "starship", "btop",
-        "pipewire", "pipewire-pulse", "wireplumber", "xdg-desktop-portal-hyprland"
-    ]
-
-
-    total = len(packages)
-    for i, pkg in enumerate(packages, 1):
-        procent = int((i / total) * 100)
-        print(f"\n\033[1;36m[{i:2d}/{total}] [{procent:3d}%] Installed: {pkg}\033[0m")
-
-        run(f"arch-chroot /mnt pacman -Sy --noconfirm {pkg}", f"Installed > {pkg}")
-
-
+    installpackages()
 
     print("Setting system... (fstab, bootloader, users)")
 
