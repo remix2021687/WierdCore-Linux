@@ -3,7 +3,7 @@
 
 iso_name="wierdcore"
 iso_label="WIERDCORE__$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="WierdCore Linux <https://archlinux.org>"
+iso_publisher="WierdCore Linux"
 iso_application="WierdCore Linux Live/Rescue DVD"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="arch"
