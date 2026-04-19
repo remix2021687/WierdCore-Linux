@@ -3,10 +3,8 @@ from scripts.run.run import run
 def systemsetting(username, password):
     print("Setting system... (fstab, bootloader, users)")
     
-    username = input("Write your username: ")
-    password = getpass.getpass("Write your password: ")    
-
-    chroot_script = f"""#!/bin/bash
+    chroot_script = f"""
+#!/bin/bash
 set -e
 
 ln -sf /usr/share/zoneinfo/Europe/Prague /etc/localtime
@@ -19,6 +17,9 @@ locale-gen
 
 echo "LANG=ru_RU.UTF-8" > /etc/locale.conf
 echo "weirdcore" > /etc/hostname
+
+systemctl start --now iwd
+systemctl start --now dhcpcd
 
 groupadd -f wheel
 groupadd -f audio
@@ -38,7 +39,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --re
 cat > /etc/default/grub << 'EOF'
 GRUB_DEFAULT=0
 GRUB_TIMEOUT=3
-GRUB_DISTRIBUTOR="WierdCore Linux"
+GRUB_DISTRIBUTOR="WierdCore"
 GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
 GRUB_CMDLINE_LINUX="rootflags=subvol=@"
 GRUB_PRELOAD_MODULES="part_gpt part_msdos"
@@ -68,7 +69,7 @@ EOF
 
 grub-mkconfig -o /boot/grub/grub.cfg 
 
-echo "WierdCore Linux" > /etc/issue
+echo "WeirdCore Linux" > /etc/issue
 """
 
     with open("/mnt/root/setup.sh", "w") as f:

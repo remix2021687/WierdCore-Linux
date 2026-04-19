@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="wierdcore"
-iso_label="WIERDCORE__$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="WierdCore Linux"
-iso_application="WierdCore Linux Live/Rescue DVD"
+iso_name="weirdcore"
+iso_label="WEIRDCORE__$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
+iso_publisher="WeirdCore Linux"
+iso_application="WeirdCore Linux Live/Rescue DVD"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')

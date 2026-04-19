@@ -7,7 +7,7 @@ def installpackages():
         "base", "linux-zen", "linux-firmware", "intel-ucode", "btrfs-progs",
         "systemd", "systemd-sysvcompat", "grub", "efibootmgr", "sudo",
         "hyprland", "waybar", "wofi", "dunst", "hyprlock", "hyprpaper", "hyprshot",
-        "grim", "slurp", "kitty", "firefox", "yazi", "fastfetch", "starship", "btop",
+        "grim", "slurp", "kitty", "firefox", "yazi", "fastfetch", "iwd", "dhcpcd", "starship", "python-pip" "btop",
         "pipewire", "pipewire-pulse", "wireplumber", "xdg-desktop-portal-hyprland"
     ]
 
