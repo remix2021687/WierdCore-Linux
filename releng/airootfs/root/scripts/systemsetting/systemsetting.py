@@ -3,9 +3,6 @@ from scripts.run.run import run
 def systemsetting(username, password):
     print("Setting system... (fstab, bootloader, users)")
     
-    username = input("Write your username: ")
-    password = getpass.getpass("Write your password: ")    
-
     chroot_script = f"""#!/bin/bash
 set -e
 

@@ -3,19 +3,48 @@ from scripts.run.run import run
 def installpackages():
     print("Install packages...")
     
-    packages = [
-        "base", "linux-zen", "linux-firmware", "intel-ucode", "btrfs-progs",
-        "systemd", "systemd-sysvcompat", "grub", "efibootmgr", "sudo",
-        "hyprland", "waybar", "wofi", "dunst", "hyprlock", "hyprpaper", "hyprshot",
-        "grim", "slurp", "kitty", "firefox", "yazi", "fastfetch", "starship", "btop",
-        "pipewire", "pipewire-pulse", "wireplumber", "xdg-desktop-portal-hyprland"
+    # packages = [
+    #     "base", "linux-zen", "linux-firmware", "intel-ucode", "btrfs-progs",
+    #     "systemd", "systemd-sysvcompat", "grub", "efibootmgr", "sudo",
+    #     "hyprland", "waybar", "wofi", "dunst", "hyprlock", "hyprpaper", "hyprshot",
+    #     "grim", "slurp", "kitty", "firefox", "yazi", "fastfetch", "starship", "btop",
+    #     "pipewire", "pipewire-pulse", "wireplumber", "xdg-desktop-portal-hyprland"
+    # ]
+
+    packages_group = [
+        ("System packages", [
+            "base", "linux-zen", "linux-firmware", "intel-ucode", 
+            "btrfs-progs", "systemd", "systemd-sysvcompat", "sudo"
+        ]),
+
+        ("Hyprland и окружение", [
+            "hyprland", "waybar", "wofi", "dunst", "hyprlock", "hyprpaper", 
+            "hyprshot", "grim", "slurp", "xdg-desktop-portal-hyprland"
+        ]),
+
+        ("Терминал и утилиты", [
+            "kitty", "yazi", "fastfetch", "starship", "btop"
+        ]),
+
+        ("Звук и мультимедиа", [
+            "pipewire", "pipewire-pulse", "wireplumber"
+        ]),
+
+        ("Браузер и дополнительное", [
+            "firefox"
+        ])
     ]
 
 
-    total = len(packages)
-    for i, pkg in enumerate(packages, 1):
-        procent = int((i / total) * 100)
-        print(f"\n\033[1;36m[{i:2d}/{total}] [{procent:3d}%] Installed: {pkg}\033[0m")
+    for group, pkg in packages_group:
+        print("=" * 50)
+        print(f"Install group {group}")
+        print("=" * 50)
+        print()
 
-        run(f"arch-chroot /mnt pacman -Sy --noconfirm {pkg}", f"Installed > {pkg}")
+        pkg_list = "".join(pkg)
+
+        run(f"arch-chroot /mnt pacman -Sy --noconfirm {pkg_list}", f"Installed > {pkg_list}")
+
+        print("Group is installed ")
 
