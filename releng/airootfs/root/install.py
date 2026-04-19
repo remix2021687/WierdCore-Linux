@@ -43,18 +43,19 @@ def main():
     print(f"   DISK {disk}")
     print(f"   USERNAME: {username}")
     print(f"   PASSWORD: {password}")
-    is_reboot = input("Reboot system ? ").strip()
 
-    if is_reboot.lower() == "yes" or is_reboot.lower() == "y":
-        run("reboot")
-    else:
-        sys.exit(1)
+    while True:
+        is_reboot = input("Reboot system ? ").strip()
 
-
-    
-
-
-
+        if not is_reboot:
+            print("Please write yes (y) or No (n)")
+            continue
+        
+        if is_reboot.lower() == "yes" or is_reboot.lower() == "y":
+            run("reboot")
+        else:
+            sys.exit(1)
+            
 if __name__ == "__main__":
     main()
 

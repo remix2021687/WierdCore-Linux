@@ -3,14 +3,6 @@ from scripts.run.run import run
 def installpackages():
     print("Install packages...")
     
-    # packages = [
-    #     "base", "linux-zen", "linux-firmware", "intel-ucode", "btrfs-progs",
-    #     "systemd", "systemd-sysvcompat", "grub", "efibootmgr", "sudo",
-    #     "hyprland", "waybar", "wofi", "dunst", "hyprlock", "hyprpaper", "hyprshot",
-    #     "grim", "slurp", "kitty", "firefox", "yazi", "fastfetch", "starship", "btop",
-    #     "pipewire", "pipewire-pulse", "wireplumber", "xdg-desktop-portal-hyprland"
-    # ]
-
     packages_group = [
         ("System packages", [
             "base", "linux-zen", "linux-firmware", "intel-ucode", 
