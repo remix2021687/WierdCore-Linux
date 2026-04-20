@@ -17,8 +17,7 @@ locale-gen
 echo "LANG=ru_RU.UTF-8" > /etc/locale.conf
 echo "weirdcore" > /etc/hostname
 
-systemctl start --now iwd
-systemctl start --now dhcpcd
+
 
 groupadd -f wheel
 groupadd -f audio
@@ -27,13 +26,19 @@ groupadd -f storage
 
 mkdir -p /etc/sudoers.d/
 
+# cp /root/logo/weirdcore.png /usr/share/pixmaps/
+# chmod 664 /usr/share/pixmaps/weirdcore.png
+
 useradd -m --group wheel,audio,video,storage {username}
 echo "{username}:{password}" | chpasswd
 echo "{username} ALL=(ALL) ALL" >> /etc/sudoers.d/00_{username}
 chmod 440 /etc/sudoers.d/00_{username}
 
-pacman -S --noconfirm grub efibootmgr
+pacman -S --noconfirm grub efibootmgr iwd dhcpcd
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck 
+
+systemctl enable iwd
+systemctl enable  dhcpcd
 
 cat > /etc/default/grub << 'EOF'
 GRUB_DEFAULT=0
