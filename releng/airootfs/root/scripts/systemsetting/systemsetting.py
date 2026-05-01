@@ -26,8 +26,6 @@ groupadd -f storage
 
 mkdir -p /etc/sudoers.d/
 
-# cp /root/logo/weirdcore.png /usr/share/pixmaps/
-# chmod 664 /usr/share/pixmaps/weirdcore.png
 
 useradd -m --group wheel,audio,video,storage {username}
 echo "{username}:{password}" | chpasswd

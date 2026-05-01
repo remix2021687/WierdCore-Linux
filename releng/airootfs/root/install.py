@@ -38,6 +38,11 @@ def main():
     run(f"mkdir -p /mnt/home/{username}/.config/")
     run(f'cp -r /etc/skel/.bashrc /mnt/home/{username}/ 2> /dev/null || true')
     run(f"cp -r /etc/skel/.config/* /mnt/home/{username}/.config/ 2>/dev/null || true")
+    run(f"cp -r /usr/share/pixmaps/weirdcore.png /mnt/usr/share/pixmaps/ 2> /dev/null || true")
+    run("chmod 664 /usr/share/pixmaps/weirdcore.png")
+    
+    # cp /root/logo/weirdcore.png /usr/share/pixmaps/
+    # chmod 664 /usr/share/pixmaps/weirdcore.png
 
     print('Install completed')
     print(f"   DISK {disk}")
