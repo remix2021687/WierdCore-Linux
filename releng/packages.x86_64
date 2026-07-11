@@ -126,4 +126,5 @@ xdg-utils
 xfsprogs
 xl2tpd
 zsh
+python
 python-pip
